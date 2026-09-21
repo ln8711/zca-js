@@ -255,7 +255,7 @@ export class Listener extends EventEmitter<ListenerEvents> {
                     }, this.ctx.settings.features.socket.ping_interval);
                 }
 
-                if (version == 1 && cmd == 501 && subCmd == 0) {
+                if (version == 1 && ([501, 551].includes(cmd)) && subCmd == 0) {
                     const parsedData = (await decodeEventData(parsed, this.cipherKey)).data;
                     const { msgs } = parsedData;
                     for (const msg of msgs) {
@@ -464,6 +464,8 @@ export class Listener extends EventEmitter<ListenerEvents> {
                     logger(this.ctx).error();
                     if (ws.readyState !== WebSocket.CLOSED) ws.close(CloseReason.DuplicateConnection);
                 }
+
+                logger(this.ctx).info(`Unhandle cmd ${cmd}`);
             } catch (error) {
                 this.onErrorCallback(error);
                 this.emit("error", error);
